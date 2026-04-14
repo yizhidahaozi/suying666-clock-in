@@ -1,9 +1,12 @@
 name: Suying666-auto-clock-in
-on:
+于:
   push:
     branches: [ master ]
   schedule:
     - cron: '0 1 * * *'
+  # 👇 这里添加了手动触发
+  workflow_dispatch:
+
 jobs:
   build:
     name: Suying666-clock-in by GitHub Actions
@@ -12,6 +15,9 @@ jobs:
     steps:
       - name: 1. git checkout...
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
 
       - name: 2. setup python3...
         uses: actions/setup-python@v4
