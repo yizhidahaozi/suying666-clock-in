@@ -132,14 +132,16 @@ def clockIn(host):
 # ====================== 这里我帮你改成了 PUSHPLUS ======================
 def sendMessage(msg):
     if key:
-        url = f"https://www.pushplus.plus/send"
+        url = "https://www.pushplus.plus/send"
         data = {
             "token": key,
-            "title": "速鹰666自动签到",
-            "content": msg,
-            "template": "txt"
+            "title": "速鹰666自动签到结果通知",
+            "content": msg
         }
-        requests.post(url, json=data, timeout=30)
+        try:
+            requests.post(url, json=data, timeout=30)
+        except:
+            pass
 # ======================================================================
 
 
