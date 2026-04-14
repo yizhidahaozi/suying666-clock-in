@@ -1,7 +1,7 @@
 name: Suying666-auto-clock-in
 于:
   push:
-    branches: [ master ]
+    分支: [ master ]
   schedule:
     - cron: '0 1 * * *'
   # 👇 这里添加了手动触发
