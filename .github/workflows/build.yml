@@ -1,29 +1,41 @@
-name: AutoClockIn
+name: Suying666-auto-clock-in
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:
 
 jobs:
   build:
+    name: Suying666-clock-in by GitHub Actions
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: 1. git checkout...
+        uses: actions/checkout@v3
+
+      - name: 2. setup python3...
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: 3.8
+          check-latest: true
+          cache: 'pip'
       - run: pip install -r requirements.txt
-      - run: python index.py $EMAIL $PASSWD $KEY
+
+      - name: 3. do sign in...
+        run: python index.py "$EMAIL" "$PASSWD" "$KEY"
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWD: ${{ secrets.PASSWD }}
           KEY: ${{ secrets.KEY }}
-      - run: |
+
+      - name: 4. update github repository...
+        run: |
+          git config --global user.email "$EMAIL"
           git config --global user.name "bot"
-          git config --global user.email "bot@test.com"
           git add .
-          git commit -m "update"
+          git commit -m "auto-update"
           git push -f
+        env:
+          EMAIL: ${{ secrets.EMAIL }}
