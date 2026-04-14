@@ -8,20 +8,16 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
-# server酱key
+# 这里会从命令行自动接收 key
 key = ''
-# 账号
 email = ''
-# 密码
 passwd = ''
-# session
 session = requests.session()
 
 
 # 登陆
 def login(host):
     parsed_url = urlparse(host)
-    # 1. 做浏览器认证
     headers = {
         'host': parsed_url.netloc,
         'Connection': 'keep-alive',
@@ -39,21 +35,17 @@ def login(host):
         'Accept-Language': 'zh-CN,zh;q=0.9',
     }
     res = session.get(url=host, headers=headers)
-    # print(res.text)
     cookie = requests.utils.dict_from_cookiejar(res.cookies)
     if 'ge_ua_p' in cookie:
         time.sleep(5)
-        print(cookie)
         n = cookie['ge_ua_p']
         s = re.search('var nonce = \d+;', res.text)
         nonce = int(s[0][s[0].rindex('=') + 1:-1])
-        print(nonce)
         a = 0
         for o in range(len(n)):
             d = n[o]
             if d.isalpha() or d.isdigit():
                 a += ord(d) * (nonce + o)
-        print('a', a)
         headers = {
             'Host': parsed_url.netloc,
             'Connection': 'keep-alive',
@@ -73,14 +65,8 @@ def login(host):
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Cookie': 'ge_ua_p=' + n,
         }
-        res = session.post(
-            url=res.url,
-            data={'sum': a, 'nonce': nonce},
-            headers=headers
-        )
-        print(res.text)
+        res = session.post(url=res.url, data={'sum': a, 'nonce': nonce}, headers=headers)
 
-    # 2. 登录
     url = '{}/auth/login'.format(host)
     params = {
         'email': email,
@@ -99,13 +85,9 @@ def login(host):
     }
     res = session.post(url=url, headers=headers, data=params, timeout=30)
     msg = res.json()['msg']
-    print(msg)
     ret = ''
     if msg == '登录成功':
-        # 登陆成功之后，去更新hosts.txt
-        del headers['Content-Type']
-        headers[
-            'Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
+        headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
         html = session.get('{}/user'.format(host), headers=headers, timeout=30).text
         soup = BeautifulSoup(html, 'lxml')
         hosts = set()
@@ -117,8 +99,6 @@ def login(host):
         with open('hosts.txt', 'w', encoding='utf-8') as f:
             for i in hosts:
                 f.write('{}\n'.format(i))
-        print('更新hosts.txt完成')
-        # 获取登陆信息
         statistics = soup.find_all(class_='card card-statistic-2')
         for i in statistics:
             for j in i.text.split('\n'):
@@ -131,7 +111,7 @@ def login(host):
         raise Exception(msg)
 
 
-# 速鹰666签到领流量
+# 签到
 def clockIn(host):
     url = '{}/user/checkin'.format(host)
     headers = {
@@ -146,22 +126,21 @@ def clockIn(host):
     }
     res = session.post(url=url, headers=headers, timeout=30)
     json = res.json()
-    print(json)
     return json
 
 
+# ====================== 这里我帮你改成了 PUSHPLUS ======================
 def sendMessage(msg):
-    # print(msg)
     if key:
-        res = requests.post(
-            url='https://sc.ftqq.com/' + key + '.send',
-            data={
-                'title': '速鹰666自动签到结果通知',
-                'desp': msg
-            },
-            timeout=30
-        )
-        # print(res.text)
+        url = f"https://www.pushplus.plus/send"
+        data = {
+            "token": key,
+            "title": "速鹰666自动签到",
+            "content": msg,
+            "template": "txt"
+        }
+        requests.post(url, json=data, timeout=30)
+# ======================================================================
 
 
 def main_handler(event, context):
@@ -173,7 +152,6 @@ def main_handler(event, context):
             json = clockIn(host)
             msg = json['msg']
             ret = json['ret']
-            # print(lmsg + '今日签到 ' + msg)
             if ret == 1:
                 sendMessage(lmsg + '今日签到 ' + msg)
                 break
@@ -181,13 +159,12 @@ def main_handler(event, context):
                 break
         except Exception as e:
             print(e)
-    # 当没有更新hosts时，保留原有的hosts
+
     hosts2 = [i.strip() for i in open('hosts.txt', 'r', encoding='utf-8').readlines()]
     if not hosts2:
         with open('hosts.txt', 'w', encoding='utf-8') as f:
             for i in hosts:
                 f.write('{}\n'.format(i))
-
 
 
 if __name__ == '__main__':
