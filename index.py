@@ -129,19 +129,21 @@ def clockIn(host):
     return json
 
 
-# ====================== 这里我帮你改成了 PUSHPLUS ======================
+# ====================== PUSHPLUS ======================
 def sendMessage(msg):
     if key:
         url = "https://www.pushplus.plus/send"
         data = {
             "token": key,
             "title": "速鹰666自动签到结果通知",
-            "content": msg
+            "content": msg,
+            "channel": "wechat",  # 一对一必须加这个
+            "template": "html"    # 一对一用 html 模板
         }
         try:
             requests.post(url, json=data, timeout=30)
-        except:
-            pass
+        except Exception as e:
+            print(e)
 # ======================================================================
 
 
