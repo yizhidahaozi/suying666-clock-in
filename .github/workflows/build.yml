@@ -8,34 +8,26 @@ name: Suying666-auto-clock-in
 
 jobs:
   build:
-    name: Suying666-clock-in by GitHub Actions
     runs-on: ubuntu-latest
-
     steps:
-      - name: git checkout
-        uses: actions/checkout@v3
-
-      - name: setup python3
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.8'
           cache: 'pip'
-
       - run: pip install -r requirements.txt
-
-      - name: do sign in
-        run: python index.py "$EMAIL" "$PASSWD" "$KEY"
+      - name: Run script
+        run: python index.py $EMAIL $PASSWD $KEY
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWD: ${{ secrets.PASSWD }}
           KEY: ${{ secrets.KEY }}
-
-      - name: update repo
+      - name: Commit and push
         run: |
-          git config --global user.email "$EMAIL"
           git config --global user.name "bot"
+          git config --global user.email "bot@github.com"
           git add .
-          git commit -m "auto-update"
-          git push -f
+          git commit -m "auto update"
+          git push
         env:
           EMAIL: ${{ secrets.EMAIL }}
