@@ -14,20 +14,15 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-          cache: 'pip'
       - run: pip install -r requirements.txt
-      - name: Run script
-        run: python index.py $EMAIL $PASSWD $KEY
+      - run: python index.py $EMAIL $PASSWD $KEY
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWD: ${{ secrets.PASSWD }}
           KEY: ${{ secrets.KEY }}
-      - name: Commit and push
-        run: |
+      - run: |
           git config --global user.name "bot"
-          git config --global user.email "bot@github.com"
+          git config --global user.email "bot@example.com"
           git add .
           git commit -m "auto update"
-          git push
-        env:
-          EMAIL: ${{ secrets.EMAIL }}
+          git push -f
