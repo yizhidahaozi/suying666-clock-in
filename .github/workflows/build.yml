@@ -1,7 +1,8 @@
-name: Suying666-auto-clock-in
-于:
+name: AutoClockIn
+on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:
@@ -10,8 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.8'
       - run: pip install -r requirements.txt
@@ -22,7 +23,7 @@ jobs:
           KEY: ${{ secrets.KEY }}
       - run: |
           git config --global user.name "bot"
-          git config --global user.email "bot@example.com"
+          git config --global user.email "bot@test.com"
           git add .
-          git commit -m "auto update"
+          git commit -m "update"
           git push -f
