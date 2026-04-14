@@ -1,10 +1,9 @@
 name: Suying666-auto-clock-in
 于:
   push:
-    分支: [ master ]
+    branches: [ master ]
   schedule:
     - cron: '0 1 * * *'
-  # 👇 这里添加了手动触发
   workflow_dispatch:
 
 jobs:
@@ -13,28 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. git checkout...
+      - name: git checkout
         uses: actions/checkout@v3
-        with:
-          persist-credentials: false
-          fetch-depth: 0
 
-      - name: 2. setup python3...
+      - name: setup python3
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
-          check-latest: true
           cache: 'pip'
+
       - run: pip install -r requirements.txt
 
-      - name: 3. do sign in...
+      - name: do sign in
         run: python index.py "$EMAIL" "$PASSWD" "$KEY"
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWD: ${{ secrets.PASSWD }}
           KEY: ${{ secrets.KEY }}
 
-      - name: 4. update github repository...
+      - name: update repo
         run: |
           git config --global user.email "$EMAIL"
           git config --global user.name "bot"
