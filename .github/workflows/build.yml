@@ -1,4 +1,4 @@
-name: Suying666-auto-clock-in
+name: 手动加自动
 on:
   push:
     branches: [ master ]
